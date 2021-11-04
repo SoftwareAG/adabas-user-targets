@@ -1,0 +1,52 @@
+// Apply the java-library plugin to add support for Java Library
+apply plugin: 'java-library'
+// Apply the distribution plugin to build the package distribution
+apply plugin: 'distribution'
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    // Use jcenter for resolving your dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    jcenter()
+}
+
+/* Package distribution of Adabas target */
+distributions {
+  /* Package java archives */
+  main {
+    baseName = project.baseName
+    contents {
+		from configurations.runtime {
+			exclude('target-adapter-sdk.jar')
+		}
+		from jar
+		from {'icon'}
+    }
+  }
+}
+
+dependencies {
+	compile files('../../lib/target-adapter-sdk.jar')
+}
+
+sourceCompatibility = 1.8
+
+jar {
+	archivesBaseName = 'art-' + baseName
+ 	version = project.version
+	manifest {
+	    attributes(
+	        "Implementation-Title": productName,
+	        "Implementation-Version": version,
+	        "Implementation-Vendor": vendor,
+	        "Specification-Title": productName,
+	        "Specification-Version": version,
+	        "Specification-Vendor": vendor,
+	    	'Main-Class': 'com.softwareag.adabas.target.MinimalUserTarget',
+	        "Bundle-Version": version,
+	        'Build-JDK': System.getProperty('java.version'),
+	        "Build-Date":new Date().format("yyyy-MM-dd' 'HH:mm:ss"),
+	        "Copyright": copyrightString
+     )
+  }
+}
