@@ -89,7 +89,7 @@ public class Kafka extends AbstractTarget {
 					if (error != null) {
 						logger.error(error.getLocalizedMessage());
 					} else {
-						logger.info(recordMetadata.toString());
+						logger.debug("Record successfully appended to topic " + recordMetadata.topic());
 					}
 				});
 			}
