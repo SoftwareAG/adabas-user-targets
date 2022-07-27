@@ -48,7 +48,7 @@ public class KafkaTest {
 		AdabasObject adabasObject = insertObject();
 		_data.setAdabasObject(adabasObject);
 		_kafka.insert(_data);
-		_kafka.commit("1");
+		// _kafka.commit("1");
 	}
 
 	@Test
@@ -91,6 +91,15 @@ public class KafkaTest {
 		_data.setAdabasObject(adabasObject);
 		_kafka.delete(_data);
 		_kafka.commit("5");
+	}
+
+	@Test
+	public void insertOptions33() throws Exception {
+		_data = new AdabasObjectData("6", "EMPL_EMPLOYEES", "SUBS", 47, 11, null, null, null);
+		AdabasObject adabasObject = insertObjectOptions33();
+		_data.setAdabasObject(adabasObject);
+		_kafka.insert(_data);
+		_kafka.commit("6");
 	}
 
 	@After
@@ -173,6 +182,36 @@ public class KafkaTest {
 			pe.putValue("BONUS", bonus);
 			income.add(pe);
 		}
+		adabasObject.putValue("INCOME", income);
+		return adabasObject;
+	}
+
+	/**
+	 * @return object to insert
+	 */
+	private AdabasObject insertObjectOptions33() {
+		AdabasObject adabasObject = AdabasObject.newObject();
+		// fields
+		adabasObject.putValue("NAME", "Mustermann");
+		adabasObject.putValue("MIDDLE_NAME", "M.");
+		adabasObject.putValue("FIRST_NAME", "Maximilian");
+		adabasObject.putValue("CITY", "Darmstadt");
+		adabasObject.putValue("COUNTRY", "D");
+		adabasObject.putValue("ISN", ISN);
+		adabasObject.putValue("PERSONNEL_ID", "TEST0002");
+		// MU
+		ArrayList<String> lang = new ArrayList<>();
+		lang.add("");
+		adabasObject.putValue("LANG", lang);
+		// PE
+		ArrayList<AdabasObject> income = new ArrayList<>();
+		AdabasObject pe = AdabasObject.newObject();
+		pe.putValue("CURRCODE", "");
+		pe.putValue("SALARY", 0);
+		ArrayList<Integer> bonus = new ArrayList<>();
+		bonus.add(0);
+		pe.putValue("BONUS", bonus);
+		income.add(pe);
 		adabasObject.putValue("INCOME", income);
 		return adabasObject;
 	}
