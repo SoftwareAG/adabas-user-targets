@@ -21,11 +21,11 @@ import com.softwareag.adabas.targetadapter.sdk.AdabasObjectData;
 
 public class KafkaTest {
 	private static final long ISN = 42l;
-	
+
 	private Kafka _kafka;
 	private AdabasObjectData _data;
 	private AdabasObjectData _date;
-	
+
 	@Before
 	public void before() throws Exception {
 		_kafka = new Kafka();
@@ -33,10 +33,10 @@ public class KafkaTest {
 		parameter.put("propertiesFile", "./src/test/resources/kafka.properties");
 		_kafka.setParameter("kafkatest", parameter);
 	}
-	
+
 	@Test
 	public void create() throws Exception {
-		_data = new AdabasObjectData("0", "EMPL_EMPLOYEES", "SUBS", 47, 11, null, null);
+		_data = new AdabasObjectData("0", "EMPL_EMPLOYEES", "SUBS", 47, 11, null, null, null);
 		_data.setAdabasObject(createObject());
 		_kafka.create(_data);
 		_kafka.commit("0");
@@ -44,16 +44,16 @@ public class KafkaTest {
 
 	@Test
 	public void insert() throws Exception {
-		_data = new AdabasObjectData("1", "EMPL_EMPLOYEES", "SUBS", 47, 11, null, null);
+		_data = new AdabasObjectData("1", "EMPL_EMPLOYEES", "SUBS", 47, 11, null, null, null);
 		AdabasObject adabasObject = insertObject();
 		_data.setAdabasObject(adabasObject);
 		_kafka.insert(_data);
-		_kafka.commit("1");
+		// _kafka.commit("1");
 	}
-	
+
 	@Test
 	public void insertDate() throws Exception {
-		_date = new AdabasObjectData("2", "DATE", "DATE", 47, 11, null, null);
+		_date = new AdabasObjectData("2", "DATE", "DATE", 47, 11, null, null, null);
 		AdabasObject adabasObject = AdabasObject.newObject();
 		adabasObject.putValue("DATE", new Date());
 		System.out.println(adabasObject);
@@ -62,10 +62,9 @@ public class KafkaTest {
 		_kafka.commit("2");
 	}
 
-
 	@Test
 	public void populate() throws Exception {
-		_data = new AdabasObjectData("3", "EMPL_EMPLOYEES", "SUBS", 47, 11, null, null);
+		_data = new AdabasObjectData("3", "EMPL_EMPLOYEES", "SUBS", 47, 11, null, null, null);
 		AdabasObject adabasObject = insertObject();
 		_data.setAdabasObject(adabasObject);
 		_kafka.populate(_data);
@@ -74,7 +73,7 @@ public class KafkaTest {
 
 	@Test
 	public void update() throws Exception {
-		_data = new AdabasObjectData("4", "EMPL_EMPLOYEES", "SUBS", 47, 11, null, null);
+		_data = new AdabasObjectData("4", "EMPL_EMPLOYEES", "SUBS", 47, 11, null, null, null);
 		AdabasObject adabasObject = AdabasObject.newObject();
 		adabasObject.putValue("FIRST_NAME", "first");
 		adabasObject.putValue("CITY", "Frankfurt");
@@ -86,14 +85,23 @@ public class KafkaTest {
 
 	@Test
 	public void delete() throws Exception {
-		_data = new AdabasObjectData("5", "EMPL_EMPLOYEES", "SUBS", 47, 11, null, null);
+		_data = new AdabasObjectData("5", "EMPL_EMPLOYEES", "SUBS", 47, 11, null, null, null);
 		AdabasObject adabasObject = AdabasObject.newObject();
 		adabasObject.putValue("ISN", ISN);
 		_data.setAdabasObject(adabasObject);
 		_kafka.delete(_data);
 		_kafka.commit("5");
 	}
-	
+
+	@Test
+	public void insertOptions33() throws Exception {
+		_data = new AdabasObjectData("6", "EMPL_EMPLOYEES", "SUBS", 47, 11, null, null, null);
+		AdabasObject adabasObject = insertObjectOptions33();
+		_data.setAdabasObject(adabasObject);
+		_kafka.insert(_data);
+		_kafka.commit("6");
+	}
+
 	@After
 	public void after() throws Exception {
 		_kafka.close();
@@ -141,7 +149,7 @@ public class KafkaTest {
 		leave.add(pe);
 		return create;
 	}
-	
+
 	/**
 	 * @return object to insert
 	 */
@@ -174,6 +182,36 @@ public class KafkaTest {
 			pe.putValue("BONUS", bonus);
 			income.add(pe);
 		}
+		adabasObject.putValue("INCOME", income);
+		return adabasObject;
+	}
+
+	/**
+	 * @return object to insert
+	 */
+	private AdabasObject insertObjectOptions33() {
+		AdabasObject adabasObject = AdabasObject.newObject();
+		// fields
+		adabasObject.putValue("NAME", "Mustermann");
+		adabasObject.putValue("MIDDLE_NAME", "M.");
+		adabasObject.putValue("FIRST_NAME", "Maximilian");
+		adabasObject.putValue("CITY", "Darmstadt");
+		adabasObject.putValue("COUNTRY", "D");
+		adabasObject.putValue("ISN", ISN);
+		adabasObject.putValue("PERSONNEL_ID", "TEST0002");
+		// MU
+		ArrayList<String> lang = new ArrayList<>();
+		lang.add("");
+		adabasObject.putValue("LANG", lang);
+		// PE
+		ArrayList<AdabasObject> income = new ArrayList<>();
+		AdabasObject pe = AdabasObject.newObject();
+		pe.putValue("CURRCODE", "");
+		pe.putValue("SALARY", 0);
+		ArrayList<Integer> bonus = new ArrayList<>();
+		bonus.add(0);
+		pe.putValue("BONUS", bonus);
+		income.add(pe);
 		adabasObject.putValue("INCOME", income);
 		return adabasObject;
 	}
