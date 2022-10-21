@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Software AG
+ * Copyright (c) 2021-2022 Software AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -186,21 +186,21 @@ public class AmazonS3 extends AbstractTarget {
 			String type = null;
 			if (field.getType() == Type.BASE) {
 				switch (field.getFormat()) {
-				case STRING:
-					type = "string";
-					break;
-				case DECIMAL:
-				case INTEGER:
-					type = "int";
-					break;
-				case FLOAT:
-					type = "float";
-					break;
-				case BINARY:
-					type = "bytes";
-					break;
-				default:
-					break;
+					case STRING:
+						type = "string";
+						break;
+					case DECIMAL:
+					case INTEGER:
+						type = "int";
+						break;
+					case FLOAT:
+						type = "float";
+						break;
+					case BINARY:
+						type = "bytes";
+						break;
+					default:
+						break;
 				}
 				if (type != null) {
 					addField(sb, field.getName(), type);
@@ -266,15 +266,15 @@ public class AmazonS3 extends AbstractTarget {
 			return ao.evaluateValue(field.getName());
 		} else {
 			switch (field.getFormat()) {
-			case DECIMAL:
-			case INTEGER:
-				return 0;
-			case FLOAT:
-				return 0.0;
-			case BINARY:
-				return 0x00;
-			default:
-				break;
+				case DECIMAL:
+				case INTEGER:
+					return 0;
+				case FLOAT:
+					return 0.0;
+				case BINARY:
+					return 0x00;
+				default:
+					break;
 			}
 
 		}

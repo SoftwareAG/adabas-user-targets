@@ -175,7 +175,7 @@ ART0411I: User/Generic Target information at startup:
 Type                 : Console Dump
 Name                 : Dump
 Description          : Dump
-Version              : 3.7 [2021-06-17 12:03:18]
+Version              : 3.8 [2022-06-17 12:03:18]
 License Details
   Serial Number      : 0000000000
   License Key        : xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -184,8 +184,8 @@ License Details
   Operating System   : Linux S390,Linux,win
   Product Name       : Event Rep. Target Adapter for User Targ
   Product Code       : ARTUT
-  Product Version    : 3.7
-  Expiration Date    : 2021/12/31 (93 days remaining)
+  Product Version    : 3.8
+  Expiration Date    : 2022/12/31 (93 days remaining)
 State                : Active
 ```
 
