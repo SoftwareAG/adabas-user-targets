@@ -29,8 +29,11 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.simple.JSONObject;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.softwareag.adabas.targetadapter.sdk.AbstractTarget;
 import com.softwareag.adabas.targetadapter.sdk.AdabasObject;
 import com.softwareag.adabas.targetadapter.sdk.AdabasObjectData;
@@ -137,24 +140,28 @@ public class Kafka extends AbstractTarget {
 		return createMessageString(data.getAdabasObject(), data.getFileName(), command);
 	}
 
+	private static final Gson gson = new GsonBuilder()
+        .setPrettyPrinting()
+        .create();
+
 	@SuppressWarnings("unchecked")
 	private ProducerRecord<String, String> createMessageString(AdabasObject ao, String table, String command)
 			throws Exception {
 		Object isn = ao.evaluateValue("ISN");
 		String key = isn == null ? null : isn.toString();
-		JSONObject message = new JSONObject();
-		message.put("method", command);
-		message.put("data", createJSON(ao));
-		return new ProducerRecord<String, String>(table, key, message.toString());
+		JsonObject message = new JsonObject();
+		message.addProperty("method", command);
+		message.add("data", createJSON(ao));		
+		return new ProducerRecord<String, String>(table, key, gson.toJson(message));
 	}
 
 	@SuppressWarnings("unchecked")
-	private JSONObject createJSON(AdabasObject ao) {
-		JSONObject json = new JSONObject();
+	private JsonObject createJSON(AdabasObject ao) {		
+		JsonObject json = new JsonObject();
 		for (String key : ao.getKeyList()) {
 			Object object = ao.evaluateValue(key);
 			if (object instanceof AdabasObject) {
-				json.put(key, createJSON((AdabasObject) object));
+				json.add(key, createJSON((AdabasObject) object));
 			} else {
 				if (object instanceof List<?>) {
 					ArrayList<Object> list = new ArrayList<>();
@@ -162,19 +169,23 @@ public class Kafka extends AbstractTarget {
 						if (obj instanceof AdabasObject) {
 							list.add(createJSON((AdabasObject) obj));
 						} else {
-							list.add(obj);
+							list.add(obj);						
 						}
 					}
-					json.put(key, list);
+					
+					json.add(key, new Gson().toJsonTree(list).getAsJsonArray());
 				} else {
 					if (object instanceof Date) {
-						json.put(key, object.toString());
-					} else {
-						json.put(key, object);
+						json.addProperty(key, object.toString());
+					} else if (object instanceof Number) {
+						Number num = (Number) object;
+						json.addProperty(key, num);
+					}else {						
+						json.addProperty(key, object.toString());
 					}
 				}
 			}
-		}
+		}				
 		return json;
 	}
 
