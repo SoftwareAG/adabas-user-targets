@@ -6,49 +6,46 @@
  * user guide available at https://docs.gradle.org/4.3/userguide/java_library_plugin.html
  */
 
-// Apply the java-library plugin to add support for Java Library
-apply plugin: 'java-library'
-// Apply the distribution plugin to build the package distribution
-apply plugin: 'distribution'
-
-// In this section you declare where to find the dependencies of your project
-repositories {
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+plugins {
+    id 'java-library'
+	id 'distribution'
 }
 
+repositories {
+    mavenCentral()
+}
 /* Package distribution of Adabas target */
 distributions {
   /* Package java archives */
   main {
-    baseName = project.baseName
+    distributionBaseName = project.baseName
     contents {
-		from configurations.runtime {
-			exclude('target-adapter-sdk.jar')
-			exclude('sqlrep.jar')
+		from configurations.runtimeClasspath {
 		}
 		from jar
-		from {'icon'}
     }
   }
 }
 
 dependencies {
-	compile platform('software.amazon.awssdk:bom:2.13.29')
-	compile 'software.amazon.awssdk:s3'
+	implementation platform('software.amazon.awssdk:bom:2.13.29')
+	implementation 'software.amazon.awssdk:s3'
 
-	compile group: 'org.apache.avro', name: 'avro', version: '1.9.2'
-	compile group: 'org.apache.parquet', name: 'parquet-avro', version: '1.10.1'
-	compile group: 'org.apache.hadoop', name: 'hadoop-core', version: '1.2.1'
+	implementation group: 'org.apache.avro', name: 'avro', version: '1.9.2'
+	implementation group: 'org.apache.parquet', name: 'parquet-avro', version: '1.10.1'
+	implementation group: 'org.apache.hadoop', name: 'hadoop-core', version: '1.2.1'
 
   	
-	compile files('../../lib/target-adapter-sdk.jar')
-	compile files('lib/sqlrep.jar')
+	compileOnly files('../../lib/target-adapter-sdk.jar')
+	compileOnly files('lib/sqlrep.jar')
 
 }
 
-sourceCompatibility = 1.8
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
 
 jar {
 	archivesBaseName = 'art-' + baseName

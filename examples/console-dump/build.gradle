@@ -5,31 +5,30 @@ apply plugin: 'distribution'
 
 // In this section you declare where to find the dependencies of your project
 repositories {
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+    mavenCentral()
 }
 
 /* Package distribution of console dump target */
 distributions {
   main {
-    baseName = project.baseName
+    distributionBaseName = project.baseName
     contents {
 		from jar
-		from {'icon'}
     }
   }
 }
 
 dependencies {
-    runtime 'org.apache.logging.log4j:log4j-core:2.7'
-  	compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.13'
-  	compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.7'
-  	
-	compile files('../../lib/target-adapter-sdk.jar')
+    implementation 'org.apache.logging.log4j:log4j-core:2.7'
+	
+	compileOnly files('../../lib/target-adapter-sdk.jar')
 }
 
-sourceCompatibility = 1.8
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
 
 jar {
 	archivesBaseName = 'art-' + baseName
