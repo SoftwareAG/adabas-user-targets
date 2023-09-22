@@ -33,7 +33,6 @@ import org.apache.logging.log4j.Logger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.softwareag.adabas.targetadapter.sdk.AbstractTarget;
 import com.softwareag.adabas.targetadapter.sdk.AdabasObject;
 import com.softwareag.adabas.targetadapter.sdk.AdabasObjectData;
@@ -141,22 +140,20 @@ public class Kafka extends AbstractTarget {
 	}
 
 	private static final Gson gson = new GsonBuilder()
-        .setPrettyPrinting()
-        .create();
+			.setPrettyPrinting()
+			.create();
 
-	@SuppressWarnings("unchecked")
 	private ProducerRecord<String, String> createMessageString(AdabasObject ao, String table, String command)
 			throws Exception {
 		Object isn = ao.evaluateValue("ISN");
 		String key = isn == null ? null : isn.toString();
 		JsonObject message = new JsonObject();
 		message.addProperty("method", command);
-		message.add("data", createJSON(ao));		
+		message.add("data", createJSON(ao));
 		return new ProducerRecord<String, String>(table, key, gson.toJson(message));
 	}
 
-	@SuppressWarnings("unchecked")
-	private JsonObject createJSON(AdabasObject ao) {		
+	private JsonObject createJSON(AdabasObject ao) {
 		JsonObject json = new JsonObject();
 		for (String key : ao.getKeyList()) {
 			Object object = ao.evaluateValue(key);
@@ -169,10 +166,10 @@ public class Kafka extends AbstractTarget {
 						if (obj instanceof AdabasObject) {
 							list.add(createJSON((AdabasObject) obj));
 						} else {
-							list.add(obj);						
+							list.add(obj);
 						}
 					}
-					
+
 					json.add(key, new Gson().toJsonTree(list).getAsJsonArray());
 				} else {
 					if (object instanceof Date) {
@@ -180,12 +177,12 @@ public class Kafka extends AbstractTarget {
 					} else if (object instanceof Number) {
 						Number num = (Number) object;
 						json.addProperty(key, num);
-					}else {						
+					} else {
 						json.addProperty(key, object.toString());
 					}
 				}
 			}
-		}				
+		}
 		return json;
 	}
 
