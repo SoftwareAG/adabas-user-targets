@@ -6,55 +6,47 @@
  * user guide available at https://docs.gradle.org/4.3/userguide/java_library_plugin.html
  */
 
-// Apply the java-library plugin to add support for Java Library
-apply plugin: 'java-library'
-// Apply the distribution plugin to build the package distribution
-apply plugin: 'distribution'
-
-// In this section you declare where to find the dependencies of your project
-repositories {
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+plugins {
+    id 'java-library'
+	id 'distribution'
 }
 
-/* Package distribution of Adabas target */
+repositories {
+    mavenCentral()
+}
+
+/* Package distribution of Kafka target */
 distributions {
   /* Package java archives */
   main {
-    baseName = project.baseName
+    distributionBaseName = project.baseName
     contents {
-		from configurations.runtime {
-			exclude('target-adapter-sdk.jar')
-			exclude('log4j**')
+		from configurations.runtimeClasspath {
 		}
 		from jar
-		from {'icon'}
     }
   }
 }
 
 dependencies {
-    /* runtime 'org.apache.logging.log4j:log4j-core:2.7'
-  	compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.13'
-  	compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.7'
-  	*/
+  	implementation 'com.googlecode.json-simple:json-simple:1.1'
+  	implementation 'org.apache.kafka:kafka-clients:3.5.1'
   	
-  	compile 'com.googlecode.json-simple:json-simple:1.1'
-  	
-  	compile group: 'org.apache.kafka', name: 'kafka-clients', version: '2.3.0'
-  	
-	compile files('../../lib/target-adapter-sdk.jar')
+	compileOnly files('../../lib/target-adapter-sdk.jar')
 	
 	// jars for logging
-    compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.11.2'
-    compile 'org.apache.logging.log4j:log4j-api:2.11.2'
-    compile 'org.apache.logging.log4j:log4j-core:2.11.2'
+    compileOnly group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.11.2'
+    compileOnly 'org.apache.logging.log4j:log4j-api:2.11.2'
+    compileOnly 'org.apache.logging.log4j:log4j-core:2.11.2'
  	
 	testImplementation 'junit:junit:4.12'
 }
 
-sourceCompatibility = 1.8
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
 
 jar {
 	archivesBaseName = 'art-' + baseName
