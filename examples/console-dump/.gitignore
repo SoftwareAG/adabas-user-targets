@@ -12,3 +12,6 @@ build
 
 # Ignore Java bin directory
 bin
+
+# Ignore Mac Files
+.DS_Store
