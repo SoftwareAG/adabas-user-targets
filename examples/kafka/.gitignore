@@ -7,6 +7,9 @@
 # Ignore Visual Studio Code project settings directory
 .vscode
 
+# Ignore Visual Studio Code project settings directory
+.project
+
 # Ignore Gradle build output directory
 build
 
