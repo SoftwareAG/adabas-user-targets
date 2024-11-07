@@ -1,8 +1,21 @@
 # Ignore Gradle project-specific cache directory
 .gradle
 
+# Ignore project-specific settings directory
+.settings
+
+# Ignore Visual Studio Code project settings directory
+.vscode
+
+# Ignore Eclipse project files
+.project
+.classpath
+
 # Ignore Gradle build output directory
 build
 
 # Ignore Java bin directory
 bin
+
+# Ignore Mac Files
+.DS_Store
