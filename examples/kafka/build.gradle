@@ -33,6 +33,7 @@ dependencies {
 	implementation 'org.apache.kafka:kafka-clients:3.5.1'
 
 	compileOnly files('../../lib/target-adapter-sdk.jar')
+	testImplementation files('../../lib/target-adapter-sdk.jar')
 	
 	// jars for logging
     compileOnly group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.11.2'
@@ -40,11 +41,13 @@ dependencies {
     compileOnly 'org.apache.logging.log4j:log4j-core:2.11.2'
  	
 	testImplementation 'junit:junit:4.12'
+	testImplementation 'org.apache.logging.log4j:log4j-api:2.11.2'
+	testImplementation 'org.apache.logging.log4j:log4j-core:2.11.2'
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
