@@ -1,7 +1,7 @@
 This package may comprise separate components provided by third party developers and contributors.
 Copyright notices and license texts can be found in the file "thirdparty.*" in this same directory or in the respective directories where a component may be stored.
  
-Software AG published its code under the Apache License Version 2.0 as available at https://www.apache.org/licenses/LICENSE-2.0 and as provided below.
+Software GmbH published its code under the Apache License Version 2.0 as available at https://www.apache.org/licenses/LICENSE-2.0 and as provided below.
  
 ---
  
