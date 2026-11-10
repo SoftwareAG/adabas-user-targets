@@ -79,8 +79,19 @@ public class Kafka extends AbstractTarget {
 		for (Entry<Object, Object> prop : props.entrySet()) {
 			logger.info(prop.getKey() + "=" + prop.getValue());
 		}
-		_producer = new KafkaProducer<String, String>(props);
+		_producer = createProducer(props);
 		return this;
+	}
+
+	/**
+	 * Creates the Kafka producer. Tests override this to use a mock producer
+	 * instead of connecting to a real broker.
+	 *
+	 * @param props the producer properties
+	 * @return the producer used to send the records
+	 */
+	protected Producer<String, String> createProducer(Properties props) {
+		return new KafkaProducer<String, String>(props);
 	}
 
 	@Override

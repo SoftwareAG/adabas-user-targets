@@ -8,14 +8,26 @@
  */
 package com.softwareag.adabas.target;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
 
+import org.apache.kafka.clients.producer.MockProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.softwareag.adabas.targetadapter.sdk.AdabasObject;
 import com.softwareag.adabas.targetadapter.sdk.AdabasObjectData;
 
@@ -23,12 +35,20 @@ public class KafkaTest {
 	private static final long ISN = 42l;
 
 	private Kafka _kafka;
+	private MockProducer<String, String> _producer;
 	private AdabasObjectData _data;
 	private AdabasObjectData _date;
 
 	@Before
 	public void before() throws Exception {
-		_kafka = new Kafka();
+		// MockProducer records the sent messages instead of connecting to a broker
+		_producer = new MockProducer<>(true, new StringSerializer(), new StringSerializer());
+		_kafka = new Kafka() {
+			@Override
+			protected Producer<String, String> createProducer(Properties props) {
+				return _producer;
+			}
+		};
 		HashMap<String, String> parameter = new HashMap<>();
 		parameter.put("propertiesFile", "./src/test/resources/kafka.properties");
 		_kafka.setParameter("kafkatest", parameter);
@@ -40,6 +60,8 @@ public class KafkaTest {
 		_data.setAdabasObject(createObject());
 		_kafka.create(_data);
 		_kafka.commit("0");
+		JsonObject message = assertSingleRecord("EMPL_EMPLOYEES", null, "Create");
+		assertEquals("string,20,0,ky", message.getAsJsonObject("data").get("NAME").getAsString());
 	}
 
 	@Test
@@ -48,18 +70,27 @@ public class KafkaTest {
 		AdabasObject adabasObject = insertObject();
 		_data.setAdabasObject(adabasObject);
 		_kafka.insert(_data);
-		// _kafka.commit("1");
+		// records are only sent on commit
+		assertTrue(_producer.history().isEmpty());
+		_kafka.commit("1");
+		JsonObject message = assertSingleRecord("EMPL_EMPLOYEES", "42", "Insert");
+		JsonObject data = message.getAsJsonObject("data");
+		assertEquals("Mustermann", data.get("NAME").getAsString());
+		assertEquals(3, data.getAsJsonArray("LANG").size());
+		assertEquals(2, data.getAsJsonArray("INCOME").size());
 	}
 
 	@Test
 	public void insertDate() throws Exception {
 		_date = new AdabasObjectData("2", "DATE", "DATE", 47, 11, null, null, null);
 		AdabasObject adabasObject = AdabasObject.newObject();
-		adabasObject.putValue("DATE", new Date());
-		System.out.println(adabasObject);
+		Date date = new Date();
+		adabasObject.putValue("DATE", date);
 		_date.setAdabasObject(adabasObject);
 		_kafka.insert(_date);
 		_kafka.commit("2");
+		JsonObject message = assertSingleRecord("DATE", null, "Insert");
+		assertEquals(date.toString(), message.getAsJsonObject("data").get("DATE").getAsString());
 	}
 
 	@Test
@@ -69,6 +100,7 @@ public class KafkaTest {
 		_data.setAdabasObject(adabasObject);
 		_kafka.populate(_data);
 		_kafka.commit("3");
+		assertSingleRecord("EMPL_EMPLOYEES", "42", "Populate");
 	}
 
 	@Test
@@ -81,6 +113,8 @@ public class KafkaTest {
 		_data.setAdabasObject(adabasObject);
 		_kafka.update(_data);
 		_kafka.commit("4");
+		JsonObject message = assertSingleRecord("EMPL_EMPLOYEES", "42", "Update");
+		assertEquals("Frankfurt", message.getAsJsonObject("data").get("CITY").getAsString());
 	}
 
 	@Test
@@ -91,6 +125,7 @@ public class KafkaTest {
 		_data.setAdabasObject(adabasObject);
 		_kafka.delete(_data);
 		_kafka.commit("5");
+		assertSingleRecord("EMPL_EMPLOYEES", "42", "Delete");
 	}
 
 	@Test
@@ -100,11 +135,33 @@ public class KafkaTest {
 		_data.setAdabasObject(adabasObject);
 		_kafka.insert(_data);
 		_kafka.commit("6");
+		JsonObject message = assertSingleRecord("EMPL_EMPLOYEES", "42", "Insert");
+		assertEquals(0, message.getAsJsonObject("data").getAsJsonArray("INCOME").get(0)
+				.getAsJsonObject().get("SALARY").getAsInt());
 	}
 
 	@After
 	public void after() throws Exception {
 		_kafka.close();
+		assertTrue(_producer.closed());
+	}
+
+	/**
+	 * Checks that exactly one record was sent and returns its parsed JSON value.
+	 */
+	private JsonObject assertSingleRecord(String topic, String key, String method) {
+		List<ProducerRecord<String, String>> history = _producer.history();
+		assertEquals(1, history.size());
+		ProducerRecord<String, String> record = history.get(0);
+		assertEquals(topic, record.topic());
+		if (key == null) {
+			assertNull(record.key());
+		} else {
+			assertEquals(key, record.key());
+		}
+		JsonObject message = JsonParser.parseString(record.value()).getAsJsonObject();
+		assertEquals(method, message.get("method").getAsString());
+		return message;
 	}
 
 	/**
