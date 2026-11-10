@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Software AG
+ * Copyright (c) 2021-2026 Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 
 /**
  * 
- * @author Matthias Gerth, Software AG, Darmstadt, Germany
+ * @author Matthias Gerth, Software GmbH, Darmstadt, Germany
  *
  */
 public class AmazonS3 extends AbstractTarget {
